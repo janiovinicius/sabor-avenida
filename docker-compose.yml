@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  sabor_db:
+    image: mysql:8.0
+    container_name: sabor_avenida_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_local
+      MYSQL_DATABASE: sabor_avenida
+      MYSQL_USER: sabor_developer
+      MYSQL_PASSWORD: sabor_password_local
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  sabor_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sabor_avenida_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      DATABASE_URL: "mysql://sabor_developer:sabor_password_local@sabor_db:3306/sabor_avenida"
+    depends_on:
+      - sabor_db
+
+volumes:
+  mysql_data:
